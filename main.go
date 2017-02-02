@@ -4,7 +4,9 @@ import (
 	"database/sql"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
+	"os"
 
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -18,7 +20,11 @@ func what(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	db, err := sql.Open("mysql", "root:root@tcp(127.0.0.1:3306)/gotest")
+
+	connectionName := mustGetenv("CLOUDSQL_CONNECTION_NAME")
+	user := mustGetenv("CLOUDSQL_USER")
+	password := os.Getenv("CLOUDSQL_PASSWORD")
+	db, err := sql.Open("mysql", fmt.Sprintf("%s:%s@cloudsql(%s)/", user, password, connectionName))
 	if err != nil {
 		fmt.Println("Something connect open")
 	}
@@ -47,4 +53,12 @@ func main() {
 	http.HandleFunc("/", hello)
 	http.HandleFunc("/sup", what)
 	http.ListenAndServe(":8000", nil)
+}
+
+func mustGetenv(k string) string {
+	v := os.Getenv(k)
+	if v == "" {
+		log.Panicf("%s environment variable not set ", k)
+	}
+	return v
 }
