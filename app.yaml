@@ -1,5 +1,5 @@
-application: hellodb
-version: 1
+application: gostart-157508
+version: 2
 runtime: go
 api_version: go1
 
